@@ -1,1 +1,1 @@
-# o2joi
+# oas-to-joi
