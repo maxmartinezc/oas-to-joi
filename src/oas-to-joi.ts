@@ -9,9 +9,12 @@ export class OasToJoi {
   protected joiBuilder: IBuilder;
   protected typesBuilder: IBuilder;
 
-  constructor(type: string = ParsersEnum.YAML, options: Options) {
-    const parser = ParserFactory.getParser(type, {
-      fileName: options.fileName,
+  constructor(options: Options) {
+    const parser = ParserFactory.getParser({
+      type: ParsersEnum.YAML,
+      config: {
+        sourceFileName: options.sourceFileName,
+      },
     });
 
     this.joiBuilder = new JoiBuilder(parser, options.outputDir);

@@ -5,14 +5,14 @@ import { JSONParser } from "./json.parser";
 import { YAMLParser } from "./yaml.parser";
 
 export class ParserFactory {
-  static getParser(type: string, parserOptions: ParserOptions): IParser {
-    switch (type) {
+  static getParser(options: { type: string; config: ParserOptions }): IParser {
+    switch (options.type) {
       case ParsersEnum.YAML:
-        return new YAMLParser(parserOptions);
+        return new YAMLParser(options.config);
       case ParsersEnum.JSON:
-        return new JSONParser(parserOptions);
+        return new JSONParser(options.config);
       default:
-        throw new Error(`Factory for ${type} is not implemented`);
+        throw new Error(`Factory for ${options.type} is not implemented`);
     }
   }
 }

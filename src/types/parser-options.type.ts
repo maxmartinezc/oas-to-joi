@@ -1,4 +1,4 @@
 export type ParserOptions = {
-  fileName: string;
+  sourceFileName: string;
   //encoding?: string;
 };
