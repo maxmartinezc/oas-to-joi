@@ -1,0 +1,28 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - feature/pipelines
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Publish'
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npm rollup
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: 'Push changes to repository'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin && git push --tags
