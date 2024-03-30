@@ -47,7 +47,7 @@ import path from "path";
   validate({ name: "Flanki" });
 ```
 
-### Output
+## Output
 After dump the object you will get two folders with a set of files which represents the OAS file operations and schemas. For example:
 ```
 └──── output
