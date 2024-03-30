@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2017",
+    "target": "ESNext",
     "outDir": "./dist",
     "rootDir": "src",
     "moduleResolution": "node",
@@ -10,8 +10,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "declarationDir": "./dist/dts",
+    //"emitDeclarationOnly": true,
+    //"declarationDir": "./dist/dts",
     /* Debugging Options */
     "traceResolution": false,
     "listEmittedFiles": false,
@@ -25,3 +25,6 @@
   "exclude": ["node_modules/**"],
   "compileOnSave": false
 }
+
+// "strict": true,
+// "skipLibCheck": true,

@@ -1,4 +1,4 @@
 export type Options = {
-  fileName: string;
+  sourceFileName: string;
   outputDir: string;
 };

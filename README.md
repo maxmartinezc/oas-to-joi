@@ -8,7 +8,12 @@ _**Bonus**_: Typescript Types files from the OAS schemas definitions too.
 `npm install --save-dev oas-to-joi`
 
 ## How to use
-### Get Joi Schemas
+### Command Line
+```bash
+oas-to-joi --oas-file path_to_oas_yaml_file --output path_to_output_directory
+```
+
+### Or creating an OasToJoi instance
 ```typescript
 import OasToJoi from "oas-to-joi";
 import path from "path";
@@ -18,7 +23,7 @@ import path from "path";
   const outputDirPath = path.resolve(`${__dirname}/my-output-folder`);
 
   // create OasToJoi object
-  const oasToJoi = new OasToJoi("yaml", {
+  const oasToJoi = new OasToJoi({
     fileName: oasFilePath,
     outputDir: outputDirPath,
   });
@@ -29,7 +34,7 @@ import path from "path";
   oasToJoi.dumpTypes();
 
 ```
-### Validate data use Joi Schemas
+## Validate data using Joi Schemas
 
 ```typescript
   import schema from "./output/joi/add-pet.schema";
