@@ -14,7 +14,11 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm version patch
+      - name: 'Dump version'
+        run: |
+          git config --global user.email "${{context.repo.owner}}"
+          git config --global user.name "${{context.repo.owner}}"
+          npm version patch
       - run: npm ci
       - run: npm run rollup
       - run: npm publish
