@@ -77,7 +77,6 @@ After dump the object you will get two folders with a set of files which represe
 
 - Only support YAML files.
 - The YAML file have to be in utf8 encode.
-
 - Doesn't support circular references, for example:
 ```typescript
 // Pet schema file
