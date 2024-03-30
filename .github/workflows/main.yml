@@ -1,0 +1,43 @@
+name: 'Publish'
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+permissions:
+  contents: write
+
+jobs:
+  merge_pr:
+    name: 'PR Merged'
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      - name: Git configuration
+        run: |
+          git config --global user.email "${{github.repository_owner}}"
+          git config --global user.name "${{github.repository_owner}}"
+      - name: Apply major version bump
+        if: contains(github.event.pull_request.labels.*.name, 'major')
+        run: npm version major
+      - name: Apply minor version bump
+        if: contains(github.event.pull_request.labels.*.name, 'minor')
+        run: npm version minor
+      - name: Apply patch version bump
+        if: contains(github.event.pull_request.labels.*.name, 'patch')
+        run: npm version patch
+      - name: Apply alpha version bump
+        if: contains(github.event.pull_request.labels.*.name, 'alpha')
+        run: npm version prerelease --preid=alpha
+      - name: Git push version bump
+        run: git push origin master --follow-tags --force
+      # - id: set-version
+      #   name: Output version change
+      #   run: npm pkg get version
