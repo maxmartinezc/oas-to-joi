@@ -12,9 +12,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "engines": {
-    "node": ">=16"
-  },
   "scripts": {
     "lint": "eslint src/**/*.ts --fix",
     "rollup": "npm run build & rollup --c",
