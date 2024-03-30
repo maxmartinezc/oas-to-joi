@@ -13,7 +13,7 @@ export class YAMLParser implements IParser {
 
   load() {
     try {
-      const fileBuffer = fs.readFileSync(this.options.fileName, "utf8");
+      const fileBuffer = fs.readFileSync(this.options.sourceFileName, "utf8");
       this.data = YAML.parse(fileBuffer);
     } catch (e) {
       throw new OasToJoiError(e.message);

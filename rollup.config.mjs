@@ -14,22 +14,24 @@ export default [
         file: packageJson.main,
         format: 'cjs',
         sourcemap: true,
+        exports: 'named',
       },
       {
         file: packageJson.module,
         format: 'esm',
         sourcemap: true,
+        exports: 'named',
       },
     ],
     plugins: [
       peerDepsExternal(),
       commonjs(),
       resolve(),
-      typescript({ exclude: ['**/__tests__', '**/*.test.ts'] }),
+      typescript({ exclude: ['**/__tests__', '**/*.test.ts'], sourceMap: true }),
     ],
-    external: ["yaml"]
+    external: ["yaml"],
   }, {
-    input: './dist/dts/index.d.ts',
+    input: './dist/index.d.ts',
     output: [{ file: packageJson.types, format: 'esm' }],
     plugins: [dts()],
   },

@@ -7,8 +7,12 @@
   "types": "dist/lib.d.ts",
   "files": [
     "dist/lib.*",
+    "bin/oas-to-joi.js",
     "LICENSE"
   ],
+  "bin": {
+    "oas-to-joi": "bin/oas-to-joi.js"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -23,6 +27,11 @@
     "clean": "tsc --build --clean",
     "watch:build": "tsc -p tsconfig.json -w"
   },
+  "keywords": [
+    "cli",
+    "oas",
+    "joi"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/maxmartinezc/oas-to-joi.git"
