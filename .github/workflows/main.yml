@@ -40,5 +40,5 @@ jobs:
         run: npm version prerelease --preid=alpha
       - name: Git push version bump
         run: git push origin master --follow-tags --force
-      - name: Output version change
+      - name: Output new version
         run: npm pkg get version >> $GITHUB_STEP_SUMMARY
