@@ -1,6 +1,6 @@
 {
   "name": "oas-to-joi",
-  "version": "0.0.1-alpha.13",
+  "version": "0.0.1-alpha.14",
   "description": "Open Api Specification to Joi",
   "main": "dist/lib.js",
   "module": "dist/lib.esm.js",
