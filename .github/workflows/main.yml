@@ -39,6 +39,6 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'alpha')
         run: npm version prerelease --preid=alpha
       - name: Git push version bump
-        run: git push origin master --follow-tags
+        run: git push origin master
       - name: Output new version
         run: npm pkg get version >> $GITHUB_STEP_SUMMARY
