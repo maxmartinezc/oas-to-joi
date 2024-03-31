@@ -28,16 +28,20 @@ jobs:
           git config --global user.name "${{github.repository_owner}}"
       - name: Apply major version bump
         if: contains(github.event.pull_request.labels.*.name, 'major')
-        run: npm version major
+        run: |
+          npm version major -m ":bookmark: %s"
       - name: Apply minor version bump
         if: contains(github.event.pull_request.labels.*.name, 'minor')
-        run: npm version minor
+        run: |
+          npm version minor -m ":bookmark: %s"
       - name: Apply patch version bump
         if: contains(github.event.pull_request.labels.*.name, 'patch')
-        run: npm version patch
+        run: |
+          npm version patch -m ":bookmark: %s"
       - name: Apply alpha version bump
         if: contains(github.event.pull_request.labels.*.name, 'alpha')
-        run: npm version prerelease --preid=alpha
+        run: |
+          npm version prerelease --preid=alpha -m ":bookmark: %s"
       - name: Npm Publish
         run: |
           npm ci
