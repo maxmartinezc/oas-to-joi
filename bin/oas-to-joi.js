@@ -10,10 +10,10 @@ if (sourceFileParameterIndex > -1 && outputDirIndex > -1) {
   const sourceFileName = process.argv[sourceFileParameterIndex + 1];
   const outputDir = process.argv[outputDirIndex + 1];
   const oasToJoi = cli(sourceFileName, outputDir);
-  console.log("Dumping Joi Schemas");
   oasToJoi.dumpJoiSchemas();
-  console.log("Dumping TypeScript types");
+  console.log("Dumping Joi Schemas DONE!");
   oasToJoi.dumpTypes();
+  console.log("Dumping TypeScript types DONE!");
 } else {
   console.log(
      `Usage: oas-to-joi ${OAS_FILE_PARAMETER}path_and_file_name ${OUTPUT_DIR_PARAMETER}output_path`,
