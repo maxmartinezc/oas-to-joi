@@ -38,7 +38,14 @@ jobs:
       - name: Apply alpha version bump
         if: contains(github.event.pull_request.labels.*.name, 'alpha')
         run: npm version prerelease --preid=alpha
-      - name: Git push version
+      - name: Npm Publish
+        run: |
+          npm ci
+          npm run rollup
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Push changes to repository
         run: git push origin master --follow-tags
       - name: Output new version
         run: npm pkg get version >> $GITHUB_STEP_SUMMARY
