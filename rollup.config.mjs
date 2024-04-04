@@ -27,7 +27,7 @@ export default [
       peerDepsExternal(),
       commonjs(),
       resolve(),
-      typescript({ exclude: ['**/__tests__', '**/*.test.ts'], sourceMap: true }),
+      typescript({ module: "ESNEXT", target: "ESNEXT", exclude: ['**/__tests__', '**/*.test.ts'], sourceMap: true }),
     ],
     external: ["yaml"],
   }, {

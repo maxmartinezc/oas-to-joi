@@ -1,0 +1,9 @@
+export { JoiStringDecorator } from "../joi/joi-string.decorator";
+export { JoiRequiredDecorator } from "../joi/joi-required.decorator";
+export { JoiValidDecorator } from "../joi/joi-valid.decorator";
+export { JoiNameDecorator } from "../joi/joi-name.decorator";
+export { JoiNumberDecorator } from "../joi/joi-number.decorator";
+export { JoiRefDecorator } from "../joi/joi-ref.decorator";
+export { JoiArrayDecorator } from "../joi/joi-array.decorator";
+export { JoiArrayRefDecorator } from "../joi/joi-array-ref.decorator";
+export { JoiBooleanDecorator } from "../joi/joi-boolean.decorator";

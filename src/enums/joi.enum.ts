@@ -1,9 +1,9 @@
 import { Utils } from "../utils";
 
 export const JoiEnum = {
-  INTEGER: "Joi.number()",
-  STRING: "Joi.string()",
-  BOOLEAN: "Joi.boolean()",
+  INTEGER: "number",
+  STRING: "string",
+  BOOLEAN: "boolean()",
   REQUIRED: ".required()",
   ARRAYS: "Joi.array()",
   OBJECT: "Joi.object",
