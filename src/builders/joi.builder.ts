@@ -161,17 +161,6 @@ export class JoiBuilder implements IBuilder {
     return def["type"] == OASEnum.ARRAY && def["items"][OASEnum.REF];
   }
 
-  // protected isStringType(type: string): boolean {
-  //   return [
-  //     "binary",
-  //     "byte",
-  //     "date",
-  //     "date-time",
-  //     "password",
-  //     "string",
-  //   ].includes(type);
-  // }
-
   protected getDecoratoryByType(
     joiComponent: JoiComponent,
     def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
