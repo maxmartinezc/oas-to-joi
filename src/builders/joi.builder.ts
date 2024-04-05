@@ -170,8 +170,11 @@ export class JoiBuilder implements IBuilder {
       joiComponent = new JoiArrayDecorator(joiComponent, [
         this.getDecoratorByPrimitiveType(def["items"], new JoiComponent()),
       ]);
-    } else if (type === OASEnum.ENUM) {
-      joiComponent = new JoiValidDecorator(joiComponent, def["enum"]);
+    } else if (type === OASEnum.STRING && def[OASEnum.ENUM]) {
+      joiComponent = new JoiValidDecorator(
+        this.getDecoratorByPrimitiveType(def, joiComponent),
+        def["enum"],
+      );
     } else {
       joiComponent = this.getDecoratorByPrimitiveType(def, joiComponent);
     }
