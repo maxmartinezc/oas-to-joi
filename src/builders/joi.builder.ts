@@ -18,8 +18,8 @@ import {
   JoiBooleanDecorator,
 } from "../decorators/joi";
 import { JoiComponent } from "../decorators/components/joi.component";
-
-const HEADER_JOI_IMPORT = "import Joi from 'joi';";
+import { Decorator } from "../decorators/decorator";
+import { OASEnum } from "../enums/oas.enum";
 
 export class JoiBuilder implements IBuilder {
   data: OpenAPIV3.Document;
@@ -53,17 +53,17 @@ export class JoiBuilder implements IBuilder {
       operations.push(
         this.getOperationSchemaObjects(operationName, schemaName),
       );
-      const joiComponent = this.makeJoiComponent(schemaName, schema);
+      const sourceObject = this.makeSourceObject(schemaName, schema);
 
-      joiComponent[schemaName].references.forEach((item) => {
+      sourceObject[schemaName].references.forEach((item) => {
         const schema = <OpenAPIV3.SchemaObject>(
           this.data.components.schemas[item]
         );
 
-        sourceObjectList.push(this.makeJoiComponent(item, schema));
+        sourceObjectList.push(this.makeSourceObject(item, schema));
       });
 
-      sourceObjectList.push(joiComponent);
+      sourceObjectList.push(sourceObject);
     });
 
     return { operations, schemas: sourceObjectList };
@@ -72,7 +72,7 @@ export class JoiBuilder implements IBuilder {
   protected getSchemasReferences(
     parentDefs: Array<SourceObject>,
   ): Array<SourceObject> {
-    const refJoiComponents: Array<SourceObject> = [];
+    const refSourceComponents: Array<SourceObject> = [];
     const refs = [
       ...new Set(
         parentDefs
@@ -85,10 +85,10 @@ export class JoiBuilder implements IBuilder {
 
     refs.forEach((item) => {
       const schema = <OpenAPIV3.SchemaObject>this.data.components.schemas[item];
-      refJoiComponents.push(this.makeJoiComponent(item, schema));
+      refSourceComponents.push(this.makeSourceObject(item, schema));
     });
 
-    return refJoiComponents;
+    return refSourceComponents;
   }
 
   protected getOperations(data: OpenAPIV3.Document) {
@@ -114,14 +114,14 @@ export class JoiBuilder implements IBuilder {
     return operations;
   }
 
-  protected makeJoiComponent(
+  protected makeSourceObject(
     name: string,
     schema: OpenAPIV3.SchemaObject,
   ): SourceObject {
     const joiItems: Array<JoiComponent> = [];
     const sourceObject: SourceObject = {
       [name]: {
-        definition: "",
+        definitions: [],
         references: [],
       },
     };
@@ -133,16 +133,16 @@ export class JoiBuilder implements IBuilder {
 
       joiComponent = new JoiNameDecorator(joiComponent, propName);
 
-      if (def["$ref"]) {
-        const refName = def["$ref"].split("/").pop();
+      if (def[OASEnum.REF]) {
+        const refName = def[OASEnum.REF].split("/").pop();
         joiComponent = new JoiRefDecorator(joiComponent, refName);
         sourceObject[name].references.push(refName);
       } else if (this.isArrayOfReferences(def)) {
-        const refName = def["items"]["$ref"].split("/").pop();
+        const refName = def["items"][OASEnum.REF].split("/").pop();
         joiComponent = new JoiArrayRefDecorator(joiComponent, refName);
         sourceObject[name].references.push(refName);
       } else {
-        joiComponent = this.makeDecoratorByType(joiComponent, def);
+        joiComponent = this.getDecoratoryByType(joiComponent, def);
         if (required) {
           joiComponent = new JoiRequiredDecorator(joiComponent);
         }
@@ -150,19 +150,15 @@ export class JoiBuilder implements IBuilder {
       joiItems.push(joiComponent);
     });
 
-    sourceObject[name].definition = this.printJoiObject(joiItems);
+    sourceObject[name].definitions = joiItems.map((item) => item.generate());
 
     return sourceObject;
-  }
-
-  protected printJoiObject(items: Array<JoiComponent>) {
-    return `Joi.object({\n\u0020\u0020${items.map((item) => item.generate()).join(",\n\u0020\u0020")}\n})`;
   }
 
   protected isArrayOfReferences(
     def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
   ): boolean {
-    return def["type"] == "array" && def["items"]["$ref"];
+    return def["type"] == OASEnum.ARRAY && def["items"][OASEnum.REF];
   }
 
   // protected isStringType(type: string): boolean {
@@ -175,26 +171,34 @@ export class JoiBuilder implements IBuilder {
   //     "string",
   //   ].includes(type);
   // }
-  protected makeDecoratorByType(
+
+  protected getDecoratoryByType(
     joiComponent: JoiComponent,
     def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
   ): JoiComponent {
-    if (def["type"] == "string")
-      joiComponent = new JoiStringDecorator(joiComponent);
-    else if (["number", "integer"].includes(def["type"]))
-      joiComponent = new JoiNumberDecorator(joiComponent);
-    else if (def["type"] == "boolean")
-      joiComponent = new JoiBooleanDecorator(joiComponent);
-
-    if (def["type"] === "array" && def["items"]["type"]) {
-      // needs to support integer, boolean, and others types. Now has a StringDecorator by default
+    const type = def["type"];
+    if (type === OASEnum.ARRAY && def["items"]["type"]) {
       joiComponent = new JoiArrayDecorator(joiComponent, [
-        new JoiStringDecorator(new JoiComponent()),
+        this.getDecoratorByPrimitiveType(def["items"], new JoiComponent()),
       ]);
-    } else if (def["type"] === "enum") {
+    } else if (type === OASEnum.ENUM) {
       joiComponent = new JoiValidDecorator(joiComponent, def["enum"]);
+    } else {
+      joiComponent = this.getDecoratorByPrimitiveType(def, joiComponent);
     }
     return joiComponent;
+  }
+
+  protected getDecoratorByPrimitiveType(
+    def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+    joiComponent: JoiComponent,
+  ): Decorator {
+    const type = def["type"];
+    if (type == OASEnum.STRING) return new JoiStringDecorator(joiComponent);
+    else if (OASEnum.NUMBER.includes(type))
+      return new JoiNumberDecorator(joiComponent);
+    else if (type == OASEnum.BOOLEAN)
+      return new JoiBooleanDecorator(joiComponent);
   }
 
   protected getOperationSchemaObjects(
@@ -203,7 +207,7 @@ export class JoiBuilder implements IBuilder {
   ): SourceObject {
     const defs: SourceObject = {
       [operationName]: {
-        definition: schemaName,
+        definitions: [schemaName],
         references: [schemaName],
       },
     };
@@ -212,29 +216,28 @@ export class JoiBuilder implements IBuilder {
 
   render(item: SourceObject): Array<string> {
     const itemName = Object.keys(item)[0];
-    const { definition: body, references } = item[itemName];
-
-    const imports =
-      (body.includes("Joi.") ? HEADER_JOI_IMPORT : "") +
-      this.renderReferenceImports(references);
+    const { definitions, references } = item[itemName];
 
     const mergedTemplate = mergeJoiTpl({
-      imports,
-      body,
+      references: this.makeReferencesImportStatement(references),
+      definitions,
     });
-    return [this.makeName(itemName), mergedTemplate];
+
+    return [this.makeSchemaFileName(itemName), mergedTemplate];
   }
 
-  protected renderReferenceImports(items: Array<string>): string {
+  protected makeReferencesImportStatement(items: Array<string>): Array<string> {
     const imports = [];
     items.forEach((item) => {
-      const [name] = this.makeName(item).split(this.fileNameExtension);
+      const [name] = this.makeSchemaFileName(item).split(
+        this.fileNameExtension,
+      );
       imports.push(`import ${item} from "./${name}";`);
     });
-    return imports.join("\n");
+    return imports;
   }
 
-  protected makeName(value: string) {
+  protected makeSchemaFileName(value: string) {
     const name = Utils.toKebabCase(value);
     return `${name}.schema${this.fileNameExtension}`;
   }

@@ -2,7 +2,9 @@ import { BaseComponent } from "../components/base.component";
 import { Decorator } from "../decorator";
 
 /**
- *  joiComponent = new JoiArrayDecorator(joiComponent, [
+ * JoiArrayDecorator
+ * Usage example:
+ * joiComponent = new JoiArrayDecorator(joiComponent, [
               new JoiStringDecorator(new JoiComponent()),
               new JoiNumberDecorator(new JoiComponent()),
             ]);
