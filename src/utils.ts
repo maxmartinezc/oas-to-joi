@@ -20,4 +20,8 @@ export class Utils {
   static clean(value: string, regEx: RegExp = /\*\*/g): string {
     return value.replace(regEx, "");
   }
+
+  static prettyString(value: string): string {
+    return `${value}\u0020`;
+  }
 }

@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "ESNext",
+    "target": "ES6",
     "outDir": "./dist",
     "rootDir": "src",
     "moduleResolution": "node",
-    "module": "ESNext",
+    "module": "CommonJS",
     "inlineSourceMap": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,

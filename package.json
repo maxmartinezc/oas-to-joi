@@ -25,7 +25,8 @@
     "rollup": "npm run build & rollup --c",
     "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "watch:build": "tsc -p tsconfig.json -w"
+    "watch:build": "tsc -p tsconfig.json -w",
+    "start": "ts-node-dev --respawn ./src/start.ts"
   },
   "keywords": [
     "cli",
@@ -60,6 +61,8 @@
     "rollup": "^4.13.1",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "tslib": "^2.6.2",
     "typescript": "^5.1.3"
   }
