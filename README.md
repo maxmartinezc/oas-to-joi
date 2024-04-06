@@ -10,7 +10,7 @@ _**Bonus**_: Typescript Types files from the OAS schemas definitions too.
 ## How to use
 ### Command Line
 ```bash
-oas-to-joi --oas-file path_to_oas_yaml_file --output path_to_output_directory
+oas-to-joi --oas-file openapi-example.yaml --output path_to_output_directory
 ```
 
 ### Or creating an OasToJoi instance
@@ -19,7 +19,7 @@ import OasToJoi from "oas-to-joi";
 import path from "path";
 
   // pass the open api file
-  const oasFilePath = path.resolve(`${__dirname}/my-oas-file.yaml`);
+  const oasFilePath = path.resolve(`${__dirname}/openapi-example.yaml`);
   const outputDirPath = path.resolve(`${__dirname}/my-output-folder`);
 
   // create OasToJoi object
@@ -29,9 +29,9 @@ import path from "path";
   });
 
   // get Joi schemas and validations
-  oasToJoi.dumpJoiSchemas();
+  await oasToJoi.dumpJoiSchemas();
   // get Typescript types
-  oasToJoi.dumpTypes();
+  await oasToJoi.dumpTypes();
 
 ```
 ## Validate data using Joi Schemas
@@ -72,6 +72,17 @@ After dump the object you will get two folders with a set of files which represe
        ├── tag.type.ts
        └── user.type.ts
 ```
+
+## OAS Data Type Supported
+- string
+  - email (only default settings)
+  - uuid (only default settings)
+  - hostname (only default settings)
+  - uri (only default settings)
+- number
+- integer
+- boolean
+- array
 
 ## Limitation
 

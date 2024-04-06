@@ -5,5 +5,5 @@ export interface IBuilder {
   readonly data: OpenAPIV3.Document;
   readonly parser: IParser;
   readonly outputDir: string;
-  dump: () => void;
+  dump: () => Promise<number>;
 }
