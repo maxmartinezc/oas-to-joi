@@ -21,11 +21,23 @@ export class OasToJoi {
     this.typesBuilder = new TypeScriptBuilder(parser, options.outputDir);
   }
 
-  dumpJoiSchemas() {
-    this.joiBuilder.dump();
+  async dumpJoiSchemas() {
+    console.log(
+      "\n==========================",
+      "\nDumping Joi Files ✨",
+      "\n==========================",
+    );
+    const totalFiles = await this.joiBuilder.dump();
+    console.log(`Done (${totalFiles}) Files`);
   }
 
-  dumpTypes() {
-    this.typesBuilder.dump();
+  async dumpTypes() {
+    console.log(
+      "\n===========================",
+      "\nDumping TypeScript Files ✨",
+      "\n===========================",
+    );
+    const totalFiles = await this.typesBuilder.dump();
+    console.log(`Done (${totalFiles}) Files`);
   }
 }

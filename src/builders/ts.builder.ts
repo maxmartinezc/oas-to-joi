@@ -21,11 +21,13 @@ import {
 import { TypeScriptComponent } from "../decorators/components/ts.component";
 import { Decorator } from "../decorators/decorator";
 import { OASEnum } from "../enums/oas.enum";
+import { PerformanceHelper } from "../helpers/performance.helper";
 
 export class TypeScriptBuilder implements IBuilder {
   data: OpenAPIV3.Document;
   readonly outputDir: string;
   protected fileNameExtension = ".ts";
+  private performanceHelper = new PerformanceHelper();
 
   constructor(
     readonly parser: IParser,
@@ -36,20 +38,28 @@ export class TypeScriptBuilder implements IBuilder {
     this.data = this.parser.export();
   }
 
-  dump(): void {
+  async dump(): Promise<number> {
     const { schemas } = this.makeDefinitions();
-    this.writeFile(schemas);
+    return await this.writeFile(schemas);
   }
 
   protected makeDefinitions(): Definitions {
     const sourceObjectList: Array<SourceObject> = [];
+    const sourceObjectIsPresent = (name: string) => {
+      const index = sourceObjectList.findIndex((item) => {
+        return this.getSourceObjectItemName(item) === name;
+      });
+      return index > -1 ? true : false;
+    };
 
     Object.entries(this.data.components.schemas).forEach(
       ([schemaName, defs]) => {
+        if (sourceObjectIsPresent(schemaName)) return;
         const schemaDefs = <OpenAPIV3.SchemaObject>defs;
         const sourceObject = this.makeSourceObject(schemaName, schemaDefs);
 
         sourceObject[schemaName].references.forEach((item) => {
+          if (sourceObjectIsPresent(item)) return;
           const schema = <OpenAPIV3.SchemaObject>(
             this.data.components.schemas[item]
           );
@@ -98,6 +108,7 @@ export class TypeScriptBuilder implements IBuilder {
       },
     };
 
+    this.performanceHelper.setMark(name);
     Object.entries(schema.properties).forEach(([propName, def]) => {
       const isOptional = schema.required?.indexOf(propName) == -1;
 
@@ -124,7 +135,7 @@ export class TypeScriptBuilder implements IBuilder {
     });
 
     sourceObject[name].definitions = joiItems.map((item) => item.generate());
-
+    this.performanceHelper.getMeasure(name);
     return sourceObject;
   }
 
@@ -175,7 +186,7 @@ export class TypeScriptBuilder implements IBuilder {
   }
 
   render(item: SourceObject): Array<string> {
-    const name = Object.keys(item)[0];
+    const name = this.getSourceObjectItemName(item);
     const { definitions, references } = item[name];
 
     const mergedTemplate = mergeTypeScriptTpl({
@@ -185,6 +196,10 @@ export class TypeScriptBuilder implements IBuilder {
     });
 
     return [this.makeFileName(name), mergedTemplate];
+  }
+
+  protected getSourceObjectItemName(item: SourceObject) {
+    return Object.keys(item)[0];
   }
 
   protected makeReferencesImportStatement(items: Array<string>): Array<string> {
@@ -201,16 +216,19 @@ export class TypeScriptBuilder implements IBuilder {
     return `${name}.type${this.fileNameExtension}`;
   }
 
-  protected async writeFile(data: Array<SourceObject>) {
+  protected async writeFile(data: Array<SourceObject>): Promise<number> {
     const targetDirectory = this.outputDir;
     IOHelper.createFolder(targetDirectory);
     for (const item of data) {
       const [fileName, content] = this.render(item);
+      this.performanceHelper.setMark(fileName);
       await IOHelper.writeFile({
         fileName,
         content,
         targetDirectory: this.outputDir,
       });
+      this.performanceHelper.getMeasure(fileName);
     }
+    return data.length;
   }
 }

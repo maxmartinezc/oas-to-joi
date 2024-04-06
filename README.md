@@ -29,9 +29,9 @@ import path from "path";
   });
 
   // get Joi schemas and validations
-  oasToJoi.dumpJoiSchemas();
+  await oasToJoi.dumpJoiSchemas();
   // get Typescript types
-  oasToJoi.dumpTypes();
+  await oasToJoi.dumpTypes();
 
 ```
 ## Validate data using Joi Schemas

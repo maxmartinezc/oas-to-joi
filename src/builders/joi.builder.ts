@@ -21,12 +21,14 @@ import {
 import { JoiComponent } from "../decorators/components/joi.component";
 import { Decorator } from "../decorators/decorator";
 import { OASEnum } from "../enums/oas.enum";
+import { PerformanceHelper } from "../helpers/performance.helper";
 
 export class JoiBuilder implements IBuilder {
   data: OpenAPIV3.Document;
   readonly outputDir: string;
   private CONTENT_TYPE = "application/json";
   protected fileNameExtension = ".ts";
+  private performanceHelper = new PerformanceHelper();
 
   constructor(
     readonly parser: IParser,
@@ -37,14 +39,21 @@ export class JoiBuilder implements IBuilder {
     this.data = this.parser.export();
   }
 
-  dump(): void {
+  async dump(): Promise<number> {
     const { operations, schemas } = this.makeDefinitions();
-    this.writeFile([...operations, ...schemas]);
+    return await this.writeFile([...operations, ...schemas]);
   }
 
   protected makeDefinitions(): Definitions {
     const operations: Array<SourceObject> = [];
     const sourceObjectList: Array<SourceObject> = [];
+
+    const sourceObjectIsPresent = (name: string) => {
+      const index = sourceObjectList.findIndex((item) => {
+        return this.getSourceObjectItemName(item) === name;
+      });
+      return index > -1 ? true : false;
+    };
 
     Object.entries(this.getOperations(this.data)).forEach(([, ref]) => {
       const [operationName, schemaName] = ref;
@@ -54,9 +63,12 @@ export class JoiBuilder implements IBuilder {
       operations.push(
         this.getOperationSchemaObjects(operationName, schemaName),
       );
+
+      if (sourceObjectIsPresent(schemaName)) return;
       const sourceObject = this.makeSourceObject(schemaName, schema);
 
       sourceObject[schemaName].references.forEach((item) => {
+        if (sourceObjectIsPresent(schemaName)) return;
         const schema = <OpenAPIV3.SchemaObject>(
           this.data.components.schemas[item]
         );
@@ -68,28 +80,6 @@ export class JoiBuilder implements IBuilder {
     });
 
     return { operations, schemas: sourceObjectList };
-  }
-
-  protected getSchemasReferences(
-    parentDefs: Array<SourceObject>,
-  ): Array<SourceObject> {
-    const refSourceComponents: Array<SourceObject> = [];
-    const refs = [
-      ...new Set(
-        parentDefs
-          .map((item) => {
-            return item[Object.keys(item)[0]].references;
-          })
-          .flat(),
-      ),
-    ];
-
-    refs.forEach((item) => {
-      const schema = <OpenAPIV3.SchemaObject>this.data.components.schemas[item];
-      refSourceComponents.push(this.makeSourceObject(item, schema));
-    });
-
-    return refSourceComponents;
   }
 
   protected getOperations(data: OpenAPIV3.Document) {
@@ -127,6 +117,7 @@ export class JoiBuilder implements IBuilder {
       },
     };
 
+    this.performanceHelper.setMark(name);
     Object.entries(schema.properties).forEach(([propName, def]) => {
       const required = schema.required?.indexOf(propName) >= 0;
 
@@ -152,7 +143,7 @@ export class JoiBuilder implements IBuilder {
     });
 
     sourceObject[name].definitions = joiItems.map((item) => item.generate());
-
+    this.performanceHelper.getMeasure(name);
     return sourceObject;
   }
 
@@ -217,7 +208,7 @@ export class JoiBuilder implements IBuilder {
   }
 
   render(item: SourceObject): Array<string> {
-    const itemName = Object.keys(item)[0];
+    const itemName = this.getSourceObjectItemName(item);
     const { definitions, references } = item[itemName];
 
     const mergedTemplate = mergeJoiTpl({
@@ -226,6 +217,10 @@ export class JoiBuilder implements IBuilder {
     });
 
     return [this.makeSchemaFileName(itemName), mergedTemplate];
+  }
+
+  protected getSourceObjectItemName(item: SourceObject) {
+    return Object.keys(item)[0];
   }
 
   protected makeReferencesImportStatement(items: Array<string>): Array<string> {
@@ -244,16 +239,19 @@ export class JoiBuilder implements IBuilder {
     return `${name}.schema${this.fileNameExtension}`;
   }
 
-  protected async writeFile(data: Array<SourceObject>) {
+  protected async writeFile(data: Array<SourceObject>): Promise<number> {
     const targetDirectory = this.outputDir;
     IOHelper.createFolder(targetDirectory);
     for (const item of data) {
       const [fileName, content] = this.render(item);
+      this.performanceHelper.setMark(fileName);
       await IOHelper.writeFile({
         fileName,
         content,
         targetDirectory: this.outputDir,
       });
+      this.performanceHelper.getMeasure(fileName);
     }
+    return data.length;
   }
 }

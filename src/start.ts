@@ -1,6 +1,6 @@
 import { OasToJoi } from "./oas-to-joi";
 
-const start = () => {
+const start = async () => {
   const oasFilePath = `${__dirname}/../openapi-example.yaml`;
   const outputDirPath = `${__dirname}/../dist/tmp`;
   const oasToJoi = new OasToJoi({
@@ -8,8 +8,8 @@ const start = () => {
     outputDir: outputDirPath,
   });
   // can be extra params for dump action? names? conventions?
-  oasToJoi.dumpJoiSchemas();
-  oasToJoi.dumpTypes();
+  await oasToJoi.dumpJoiSchemas();
+  await oasToJoi.dumpTypes();
 };
 
 start();
