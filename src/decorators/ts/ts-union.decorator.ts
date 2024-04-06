@@ -1,7 +1,7 @@
 import { BaseComponent } from "../components/base.component";
 import { Decorator } from "../decorator";
 
-export class JoiValidDecorator extends Decorator {
+export class TypeScriptUnionDecorator extends Decorator {
   constructor(
     component: BaseComponent,
     private values: Array<string | number | boolean>,
@@ -9,14 +9,14 @@ export class JoiValidDecorator extends Decorator {
     super(component);
   }
 
-  protected getValidValues(): string {
+  protected getValues(): string {
     return this.values
       .map((item) => (typeof item === "string" ? `"${item}"` : item))
-      .join("|");
+      .join(" | ");
   }
 
   public generate(): string {
-    const validValues = this.getValidValues();
-    return `${this.component.generate()}.valid(${validValues})`;
+    const values = this.getValues();
+    return `${this.component.generate()}${values}`;
   }
 }

@@ -2,14 +2,14 @@ import { BaseComponent } from "../components/base.component";
 import { Decorator } from "../decorator";
 
 /**
- * JoiArrayDecorator
+ * TsArrayDecorator
  * Usage example:
- * joiComponent = new JoiArrayDecorator(joiComponent, [
-              new JoiStringDecorator(new JoiComponent()),
-              new JoiNumberDecorator(new JoiComponent()),
+ * tsComponent = new TypeScriptArrayDecorator(tsComponent, [
+              new TypeScriptStringDecorator(new TsComponent()),
+              new TypeScriptNumberDecorator(new TsComponent()),
             ]);
  */
-export class JoiArrayDecorator extends Decorator {
+export class TypeScriptArrayDecorator extends Decorator {
   constructor(
     component: BaseComponent,
     private itemsType: Array<Decorator>,
@@ -20,8 +20,9 @@ export class JoiArrayDecorator extends Decorator {
   protected getItemsType(): string {
     return this.itemsType.map((item) => item.generate()).join(",");
   }
+
   public generate(): string {
     const items = this.getItemsType();
-    return `${this.component.generate()}Joi.array().items(${items})`;
+    return `${this.component.generate()}Array<${items}>`;
   }
 }

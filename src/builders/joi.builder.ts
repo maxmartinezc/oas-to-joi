@@ -16,6 +16,7 @@ import {
   JoiArrayDecorator,
   JoiArrayRefDecorator,
   JoiBooleanDecorator,
+  JoiDateDecorator,
 } from "../decorators/joi";
 import { JoiComponent } from "../decorators/components/joi.component";
 import { Decorator } from "../decorators/decorator";
@@ -182,15 +183,24 @@ export class JoiBuilder implements IBuilder {
   }
 
   protected getDecoratorByPrimitiveType(
-    def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+    def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject | string,
     joiComponent: JoiComponent,
   ): Decorator {
-    const type = def["type"];
-    if (type == OASEnum.STRING) return new JoiStringDecorator(joiComponent);
+    const type = def["type"] || def;
+
+    if (OASEnum.STRING === type && OASEnum.OTHERS.includes(def["format"]))
+      return new JoiStringDecorator(joiComponent, {
+        format: def["format"],
+      });
+    else if (def["format"])
+      return this.getDecoratorByPrimitiveType(def["format"], joiComponent);
     else if (OASEnum.NUMBER.includes(type))
       return new JoiNumberDecorator(joiComponent);
-    else if (type == OASEnum.BOOLEAN)
+    else if (type === OASEnum.BOOLEAN)
       return new JoiBooleanDecorator(joiComponent);
+    else if (OASEnum.DATE.includes(type))
+      return new JoiDateDecorator(joiComponent);
+    else return new JoiStringDecorator(joiComponent);
   }
 
   protected getOperationSchemaObjects(
