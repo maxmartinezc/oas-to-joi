@@ -48,6 +48,49 @@ import path from "path";
 ```
 
 ## Output
+```bash
+========================== 
+Dumping Joi Files ✨ 
+==========================
+# -> Pet: 0.52 ms
+# -> Category: 0.05 ms
+# -> Tag: 0.06 ms
+# -> Order: 0.23 ms
+# -> User: 0.12 ms
+# -> update-pet.schema.ts: 2.04 ms
+# -> add-pet.schema.ts: 1.02 ms
+# -> place-order.schema.ts: 0.48 ms
+# -> create-user.schema.ts: 0.38 ms
+# -> update-user.schema.ts: 0.28 ms
+# -> category.schema.ts: 0.24 ms
+# -> tag.schema.ts: 0.23 ms
+# -> pet.schema.ts: 0.24 ms
+# -> order.schema.ts: 0.73 ms
+# -> user.schema.ts: 0.36 ms
+Done (10) Files
+
+=========================== 
+Dumping TypeScript Files ✨ 
+===========================
+# -> Order: 0.40 ms
+# -> Customer: 0.09 ms
+# -> Address: 0.03 ms
+# -> Category: 0.04 ms
+# -> User: 0.20 ms
+# -> Tag: 0.05 ms
+# -> Pet: 0.33 ms
+# -> ApiResponse: 0.02 ms
+# -> order.type.ts: 0.42 ms
+# -> address.type.ts: 0.69 ms
+# -> customer.type.ts: 0.88 ms
+# -> category.type.ts: 0.55 ms
+# -> user.type.ts: 0.58 ms
+# -> tag.type.ts: 0.28 ms
+# -> pet.type.ts: 0.34 ms
+# -> api-response.type.ts: 0.25 ms
+Done (8) Files
+```
+
 After dump the object you will get two folders with a set of files which represents the OAS file operations and schemas. For example:
 ```
 └──── output
