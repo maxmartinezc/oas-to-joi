@@ -12,7 +12,7 @@ export class JoiValidDecorator extends Decorator {
   protected getValidValues(): string {
     return this.values
       .map((item) => (typeof item === "string" ? `"${item}"` : item))
-      .join("|");
+      .toString();
   }
 
   public generate(): string {
