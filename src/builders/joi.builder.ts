@@ -88,13 +88,18 @@ export class JoiBuilder implements IBuilder {
     Object.entries(data.paths).forEach(([urlPath, sc]) => {
       Object.entries(sc).forEach(([method, op]) => {
         const operation = <OpenAPIV3.OperationObject>op;
+
         const requestBody = <OpenAPIV3.RequestBodyObject>operation.requestBody;
         if (requestBody) {
           const content = requestBody.content[this.CONTENT_TYPE] || null;
           if (content) {
-            const { $ref } = <OpenAPIV3.ReferenceObject>content.schema;
-            if ($ref) {
-              const refName = $ref.split("/").pop();
+            const { $ref, ...schema } = <
+              OpenAPIV3.ReferenceObject & OpenAPIV3.SchemaObject
+            >content.schema;
+            const ref = $ref || schema["items"]["$ref"];
+
+            if (ref) {
+              const refName = ref.split("/").pop();
               const name = operation.operationId || method + urlPath + refName;
               operations.push([name, refName]);
             }
@@ -179,19 +184,21 @@ export class JoiBuilder implements IBuilder {
   ): Decorator {
     const type = def["type"] || def;
 
-    if (OASEnum.STRING === type && OASEnum.OTHERS.includes(def["format"]))
-      return new JoiStringDecorator(joiComponent, {
-        format: def["format"],
-      });
-    else if (def["format"])
-      return this.getDecoratorByPrimitiveType(def["format"], joiComponent);
-    else if (OASEnum.NUMBER.includes(type))
+    if (OASEnum.NUMBER.includes(type))
       return new JoiNumberDecorator(joiComponent);
     else if (type === OASEnum.BOOLEAN)
       return new JoiBooleanDecorator(joiComponent);
     else if (OASEnum.DATE.includes(type))
       return new JoiDateDecorator(joiComponent);
-    else return new JoiStringDecorator(joiComponent);
+    else if (def["format"])
+      return this.getDecoratorByPrimitiveType(def["format"], joiComponent);
+    else
+      return new JoiStringDecorator(joiComponent, {
+        format: def["format"] || type,
+        min: def["minLength"],
+        max: def["maxLength"],
+        pattern: def["pattern"],
+      });
   }
 
   protected getOperationSchemaObjects(
