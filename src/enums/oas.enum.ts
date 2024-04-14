@@ -6,5 +6,4 @@ export const OASEnum = {
   ENUM: "enum",
   REF: "$ref",
   DATE: ["date", "date-time"],
-  OTHERS: ["email", "uuid", "uri", "hostname", "ipv4", "ipv6"],
 };

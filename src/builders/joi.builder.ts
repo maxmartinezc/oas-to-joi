@@ -17,6 +17,7 @@ import {
   JoiArrayRefDecorator,
   JoiBooleanDecorator,
   JoiDateDecorator,
+  JoiAllowDecorator,
 } from "../decorators/joi";
 import { JoiComponent } from "../decorators/components/joi.component";
 import { Decorator } from "../decorators/decorator";
@@ -88,13 +89,18 @@ export class JoiBuilder implements IBuilder {
     Object.entries(data.paths).forEach(([urlPath, sc]) => {
       Object.entries(sc).forEach(([method, op]) => {
         const operation = <OpenAPIV3.OperationObject>op;
+
         const requestBody = <OpenAPIV3.RequestBodyObject>operation.requestBody;
         if (requestBody) {
           const content = requestBody.content[this.CONTENT_TYPE] || null;
           if (content) {
-            const { $ref } = <OpenAPIV3.ReferenceObject>content.schema;
-            if ($ref) {
-              const refName = $ref.split("/").pop();
+            const { $ref, ...schema } = <
+              OpenAPIV3.ReferenceObject & OpenAPIV3.SchemaObject
+            >content.schema;
+            const ref = $ref || schema["items"]["$ref"];
+
+            if (ref) {
+              const refName = ref.split("/").pop();
               const name = operation.operationId || method + urlPath + refName;
               operations.push([name, refName]);
             }
@@ -125,26 +131,30 @@ export class JoiBuilder implements IBuilder {
 
       joiComponent = new JoiNameDecorator(joiComponent, propName);
 
-      if (def[OASEnum.REF]) {
-        const refName = def[OASEnum.REF].split("/").pop();
-        joiComponent = new JoiRefDecorator(joiComponent, refName);
-        sourceObject[name].references.push(refName);
-      } else if (this.isArrayOfReferences(def)) {
-        const refName = def["items"][OASEnum.REF].split("/").pop();
-        joiComponent = new JoiArrayRefDecorator(joiComponent, refName);
-        sourceObject[name].references.push(refName);
-      } else {
-        joiComponent = this.getDecoratoryByType(joiComponent, def);
-        if (required) {
-          joiComponent = new JoiRequiredDecorator(joiComponent);
-        }
+      const referenceName = this.getReferenceName(def);
+      if (referenceName) {
+        def[OASEnum.REF] = referenceName;
+        sourceObject[name].references.push(referenceName);
       }
+
+      joiComponent = this.getDecoratoryByType(joiComponent, def);
+      if (required) joiComponent = new JoiRequiredDecorator(joiComponent);
       joiItems.push(joiComponent);
     });
 
     sourceObject[name].definitions = joiItems.map((item) => item.generate());
     this.performanceHelper.getMeasure(name);
     return sourceObject;
+  }
+
+  protected getReferenceName(
+    def: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  ): string {
+    const ref = def["items"]
+      ? def["items"][OASEnum.REF] || null
+      : def[OASEnum.REF] || null;
+    if (ref) return ref.split("/").pop();
+    else return null;
   }
 
   protected isArrayOfReferences(
@@ -162,14 +172,23 @@ export class JoiBuilder implements IBuilder {
       joiComponent = new JoiArrayDecorator(joiComponent, [
         this.getDecoratorByPrimitiveType(def["items"], new JoiComponent()),
       ]);
+    } else if (type === OASEnum.ARRAY && def["items"][OASEnum.REF]) {
+      joiComponent = new JoiArrayRefDecorator(joiComponent, def[OASEnum.REF]);
     } else if (type === OASEnum.STRING && def[OASEnum.ENUM]) {
       joiComponent = new JoiValidDecorator(
         this.getDecoratorByPrimitiveType(def, joiComponent),
         def["enum"],
       );
+    } else if (def[OASEnum.REF]) {
+      joiComponent = new JoiRefDecorator(joiComponent, def[OASEnum.REF]);
     } else {
       joiComponent = this.getDecoratorByPrimitiveType(def, joiComponent);
     }
+
+    if (def["nullable"]) {
+      joiComponent = new JoiAllowDecorator(joiComponent, [null]);
+    }
+
     return joiComponent;
   }
 
@@ -178,20 +197,37 @@ export class JoiBuilder implements IBuilder {
     joiComponent: JoiComponent,
   ): Decorator {
     const type = def["type"] || def;
-
-    if (OASEnum.STRING === type && OASEnum.OTHERS.includes(def["format"]))
-      return new JoiStringDecorator(joiComponent, {
-        format: def["format"],
+    let decorator: Decorator;
+    if (OASEnum.NUMBER.includes(type))
+      decorator = new JoiNumberDecorator(joiComponent, {
+        format: type,
+        multiple: def["multiple"],
+        min: def["minimum"],
+        max: def["maximum"],
       });
-    else if (def["format"])
-      return this.getDecoratorByPrimitiveType(def["format"], joiComponent);
-    else if (OASEnum.NUMBER.includes(type))
-      return new JoiNumberDecorator(joiComponent);
     else if (type === OASEnum.BOOLEAN)
-      return new JoiBooleanDecorator(joiComponent);
+      decorator = new JoiBooleanDecorator(joiComponent);
     else if (OASEnum.DATE.includes(type))
-      return new JoiDateDecorator(joiComponent);
-    else return new JoiStringDecorator(joiComponent);
+      decorator = new JoiDateDecorator(joiComponent);
+    else if (def["format"]) {
+      if (def["nullable"]) {
+        decorator = new JoiAllowDecorator(
+          this.getDecoratorByPrimitiveType(def["format"], joiComponent),
+          [null],
+        );
+      } else
+        decorator = this.getDecoratorByPrimitiveType(
+          def["format"],
+          joiComponent,
+        );
+    } else
+      decorator = new JoiStringDecorator(joiComponent, {
+        format: def["format"] || type,
+        min: def["minLength"],
+        max: def["maxLength"],
+        pattern: def["pattern"],
+      });
+    return decorator;
   }
 
   protected getOperationSchemaObjects(

@@ -16,12 +16,6 @@ export default [
         sourcemap: true,
         exports: 'named',
       },
-      {
-        file: packageJson.module,
-        format: 'esm',
-        sourcemap: true,
-        exports: 'named',
-      },
     ],
     plugins: [
       peerDepsExternal(),

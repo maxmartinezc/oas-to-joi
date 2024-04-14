@@ -613,6 +613,8 @@ components:
         quantity:
           type: integer
           format: int32
+          minimum: 1
+          maximum: 9999
           example: 7
         shipDate:
           type: string
@@ -686,12 +688,16 @@ components:
           example: 10
         username:
           type: string
+          maxLength: 20
           example: theUser
         firstName:
           type: string
+          minLength: 3
+          maxLength: 20
           example: John
         lastName:
           type: string
+          maxLength: 20
           example: James
         email:
           type: string
@@ -702,7 +708,8 @@ components:
           example: '12345'
         phone:
           type: string
-          example: '12345'
+          example: '555-555-5555'
+          pattern: '^\d{3}-\d{3}-\d{4}$'
         userStatus:
           type: integer
           description: User Status
@@ -718,6 +725,7 @@ components:
           format: int64
         name:
           type: string
+          pattern: '^[a-zA-Z]+$'
       xml:
         name: tag
     Pet:
@@ -732,6 +740,8 @@ components:
           example: 10
         name:
           type: string
+          minLength: 10
+          maxLength: 30
           example: doggie
         category:
           $ref: '#/components/schemas/Category'
