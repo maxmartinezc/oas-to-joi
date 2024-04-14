@@ -1,6 +1,6 @@
 # oas-to-joi
 
-Create Joi schemas from your Open Api Specification file.
+Create Joi schemas from your Open Api Specification file
 
 _**Bonus**_: Typescript Types files from the OAS schemas definitions too. 
 
@@ -164,16 +164,20 @@ export default schema;
   - format: ipv6 -> ip({ version: ["ipv6"], cidr: "optional" }) (cidr optional by default)
   - pattern -> joi string patter
   - minLength -> joi string min
-  - maxLength -> joi string max 
+  - maxLength -> joi string max
+  - nullable -> joi allow null
   
-- number
-- integer
+- number & integer
+  - minimum -> joi number min
+  - maximum -> joi number max
+  - nullable -> joi allow null
 - boolean
 - array
 
 ## Limitation
 
 - Only support YAML files.
+- Only tested with OAS 3.x version
 - The YAML file have to be in utf8 encode.
 - Doesn't support circular references, for example:
 ```typescript

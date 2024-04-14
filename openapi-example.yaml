@@ -613,6 +613,8 @@ components:
         quantity:
           type: integer
           format: int32
+          minimum: 1
+          maximum: 9999
           example: 7
         shipDate:
           type: string

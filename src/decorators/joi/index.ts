@@ -8,3 +8,4 @@ export { JoiArrayDecorator } from "./joi-array.decorator";
 export { JoiArrayRefDecorator } from "./joi-array-ref.decorator";
 export { JoiBooleanDecorator } from "./joi-boolean.decorator";
 export { JoiDateDecorator } from "./joi-date.decorator";
+export { JoiAllowDecorator } from "./joi-allow.decorator";
