@@ -1,8 +1,4 @@
 export class Utils {
-  static capitalizeWord(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
   static toKebabCase(str: string) {
     return str
       .match(
@@ -12,16 +8,17 @@ export class Utils {
       .join("-");
   }
 
-  static matches(dirty: string, regEx: RegExp): string {
-    const [, matches] = dirty.match(regEx) || [""];
-    return matches;
+  static consoleMessage(options: { message: string; underline?: boolean }) {
+    const { message, underline } = options;
+    if (underline) console.info(`\n${message}`, `\n${"-".repeat(30)}`);
+    else console.info(message);
   }
 
-  static clean(value: string, regEx: RegExp = /\*\*/g): string {
-    return value.replace(regEx, "");
-  }
-
-  static prettyString(value: string): string {
-    return `${value}\u0020`;
+  static consoleTitleMessage(message: string) {
+    console.info(
+      `\n${"=".repeat(30)}\n`,
+      `${message}`,
+      `\n${"=".repeat(30)}\n`,
+    );
   }
 }

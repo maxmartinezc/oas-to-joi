@@ -7,7 +7,6 @@ const start = async () => {
     sourceFileName: oasFilePath,
     outputDir: outputDirPath,
   });
-  // can be extra params for dump action? names? conventions?
   await oasToJoi.dumpJoiSchemas();
   await oasToJoi.dumpTypes();
 };

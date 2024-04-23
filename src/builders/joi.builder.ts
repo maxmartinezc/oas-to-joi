@@ -46,7 +46,11 @@ export class JoiBuilder implements IBuilder {
   }
 
   protected makeDefinitions(): Definitions {
-    const operations: Array<SourceObject> = [];
+    Utils.consoleMessage({
+      message: "Getting definitions...",
+      underline: true,
+    });
+    const operationsList: Array<SourceObject> = [];
     const sourceObjectList: Array<SourceObject> = [];
 
     const sourceObjectIsPresent = (name: string) => {
@@ -56,35 +60,45 @@ export class JoiBuilder implements IBuilder {
       return index > -1 ? true : false;
     };
 
-    Object.entries(this.getOperations(this.data)).forEach(([, ref]) => {
-      const [operationName, schemaName] = ref;
-      const schema = <OpenAPIV3.SchemaObject>(
-        this.data.components.schemas[ref[1]]
-      );
-      operations.push(
-        this.getOperationSchemaObjects(operationName, schemaName),
-      );
+    Object.entries(this.getOperations(this.data)).forEach(
+      ([operationName, ref]) => {
+        const { schema, refName: schemaName } = ref;
+        operationsList.push({
+          [operationName]: {
+            definitions: [schemaName],
+            references: [schemaName],
+          },
+        });
 
-      if (sourceObjectIsPresent(schemaName)) return;
-      const sourceObject = this.makeSourceObject(schemaName, schema);
+        if (!sourceObjectIsPresent(schemaName)) {
+          const sourceObject = this.makeSourceObject(schemaName, schema);
+          const { references } = sourceObject[schemaName];
+          if (references) {
+            references.forEach((item) => {
+              if (sourceObjectIsPresent(schemaName)) return;
+              const schema = <OpenAPIV3.SchemaObject>(
+                this.data.components.schemas[item]
+              );
+              sourceObjectList.push(this.makeSourceObject(item, schema));
+            });
+          }
+          if (!sourceObjectIsPresent(schemaName))
+            sourceObjectList.push(sourceObject);
+        }
+      },
+    );
 
-      sourceObject[schemaName].references.forEach((item) => {
-        if (sourceObjectIsPresent(schemaName)) return;
-        const schema = <OpenAPIV3.SchemaObject>(
-          this.data.components.schemas[item]
-        );
-
-        sourceObjectList.push(this.makeSourceObject(item, schema));
-      });
-
-      sourceObjectList.push(sourceObject);
-    });
-
-    return { operations, schemas: sourceObjectList };
+    return { operations: operationsList, schemas: sourceObjectList };
   }
 
   protected getOperations(data: OpenAPIV3.Document) {
-    const operations = [];
+    const operations: Record<
+      string,
+      {
+        schema: any;
+        refName: string;
+      }
+    > = {};
 
     Object.entries(data.paths).forEach(([urlPath, sc]) => {
       Object.entries(sc).forEach(([method, op]) => {
@@ -97,13 +111,19 @@ export class JoiBuilder implements IBuilder {
             const { $ref, ...schema } = <
               OpenAPIV3.ReferenceObject & OpenAPIV3.SchemaObject
             >content.schema;
-            const ref = $ref || schema["items"]["$ref"];
 
-            if (ref) {
-              const refName = ref.split("/").pop();
-              const name = operation.operationId || method + urlPath + refName;
-              operations.push([name, refName]);
+            let refName = null;
+            if ($ref || schema["items"]) {
+              const ref = $ref || schema["items"]["$ref"];
+              if (ref) {
+                refName = ref.split("/").pop();
+              }
             }
+            const name = operation.operationId || method + urlPath + refName;
+            operations[name] = {
+              refName: refName || operation.operationId,
+              schema: refName ? this.data.components.schemas[refName] : schema,
+            };
           }
         }
       });
@@ -230,19 +250,6 @@ export class JoiBuilder implements IBuilder {
     return decorator;
   }
 
-  protected getOperationSchemaObjects(
-    operationName: string,
-    schemaName: string,
-  ): SourceObject {
-    const defs: SourceObject = {
-      [operationName]: {
-        definitions: [schemaName],
-        references: [schemaName],
-      },
-    };
-    return defs;
-  }
-
   render(item: SourceObject): Array<string> {
     const itemName = this.getSourceObjectItemName(item);
     const { definitions, references } = item[itemName];
@@ -276,6 +283,7 @@ export class JoiBuilder implements IBuilder {
   }
 
   protected async writeFile(data: Array<SourceObject>): Promise<number> {
+    Utils.consoleMessage({ message: "Writing files...", underline: true });
     const targetDirectory = this.outputDir;
     IOHelper.createFolder(targetDirectory);
     for (const item of data) {

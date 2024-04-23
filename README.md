@@ -13,6 +13,17 @@ _**Bonus**_: Typescript Types files from the OAS schemas definitions too.
 oas-to-joi --oas-file openapi-example.yaml --output path_to_output_directory
 ```
 
+### Or creating a npm script
+```typescript
+// ...
+scripts: {
+  "oas-to-joi": "oas-to-joi --oas-file openapi-example.yaml --output path_to_output_directory"
+}
+```
+```bash
+npm run oas-to-joi
+```
+
 ### Or creating an OasToJoi instance
 ```typescript
 import OasToJoi from "oas-to-joi";
@@ -49,45 +60,58 @@ import path from "path";
 
 ## Output
 ```bash
-========================== 
-Dumping Joi Files ✨ 
-==========================
-# -> Pet: 0.52 ms
-# -> Category: 0.05 ms
-# -> Tag: 0.06 ms
-# -> Order: 0.23 ms
-# -> User: 0.12 ms
-# -> update-pet.schema.ts: 2.04 ms
-# -> add-pet.schema.ts: 1.02 ms
-# -> place-order.schema.ts: 0.48 ms
-# -> create-user.schema.ts: 0.38 ms
-# -> update-user.schema.ts: 0.28 ms
-# -> category.schema.ts: 0.24 ms
-# -> tag.schema.ts: 0.23 ms
-# -> pet.schema.ts: 0.24 ms
-# -> order.schema.ts: 0.73 ms
-# -> user.schema.ts: 0.36 ms
-Done (10) Files
+==============================
+ Dumping Joi Files ✨ 
+==============================
 
-=========================== 
-Dumping TypeScript Files ✨ 
-===========================
-# -> Order: 0.40 ms
-# -> Customer: 0.09 ms
-# -> Address: 0.03 ms
-# -> Category: 0.04 ms
-# -> User: 0.20 ms
-# -> Tag: 0.05 ms
-# -> Pet: 0.33 ms
-# -> ApiResponse: 0.02 ms
-# -> order.type.ts: 0.42 ms
-# -> address.type.ts: 0.69 ms
-# -> customer.type.ts: 0.88 ms
-# -> category.type.ts: 0.55 ms
-# -> user.type.ts: 0.58 ms
-# -> tag.type.ts: 0.28 ms
-# -> pet.type.ts: 0.34 ms
-# -> api-response.type.ts: 0.25 ms
+Getting definitions... 
+------------------------------
+# -> Pet: 1.34 ms
+# -> Category: 0.06 ms
+# -> Tag: 0.18 ms
+# -> Order: 0.34 ms
+# -> User: 0.27 ms
+
+Writing files... 
+------------------------------
+# -> update-pet.schema.ts: 3.85 ms
+# -> add-pet.schema.ts: 0.40 ms
+# -> place-order.schema.ts: 0.36 ms
+# -> create-user.schema.ts: 0.35 ms
+# -> create-users-with-list-input.schema.ts: 0.34 ms
+# -> update-user.schema.ts: 0.32 ms
+# -> category.schema.ts: 0.41 ms
+# -> tag.schema.ts: 0.39 ms
+# -> pet.schema.ts: 0.40 ms
+# -> order.schema.ts: 0.41 ms
+# -> user.schema.ts: 0.48 ms
+Done (11) Files
+
+==============================
+ Dumping TypeScript Files ✨ 
+==============================
+
+Getting definitions... 
+------------------------------
+# -> Order: 0.56 ms
+# -> Customer: 0.15 ms
+# -> Address: 0.04 ms
+# -> Category: 0.03 ms
+# -> User: 0.18 ms
+# -> Tag: 0.03 ms
+# -> Pet: 0.30 ms
+# -> ApiResponse: 0.03 ms
+
+Writing files... 
+------------------------------
+# -> order.type.ts: 0.58 ms
+# -> address.type.ts: 1.34 ms
+# -> customer.type.ts: 0.91 ms
+# -> category.type.ts: 1.01 ms
+# -> user.type.ts: 2.71 ms
+# -> tag.type.ts: 0.86 ms
+# -> pet.type.ts: 0.63 ms
+# -> api-response.type.ts: 0.51 ms
 Done (8) Files
 ```
 

@@ -44,6 +44,10 @@ export class TypeScriptBuilder implements IBuilder {
   }
 
   protected makeDefinitions(): Definitions {
+    Utils.consoleMessage({
+      message: "Getting definitions...",
+      underline: true,
+    });
     const sourceObjectList: Array<SourceObject> = [];
     const sourceObjectIsPresent = (name: string) => {
       const index = sourceObjectList.findIndex((item) => {
@@ -217,6 +221,7 @@ export class TypeScriptBuilder implements IBuilder {
   }
 
   protected async writeFile(data: Array<SourceObject>): Promise<number> {
+    Utils.consoleMessage({ message: "Writing files...", underline: true });
     const targetDirectory = this.outputDir;
     IOHelper.createFolder(targetDirectory);
     for (const item of data) {
