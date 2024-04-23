@@ -4,6 +4,7 @@ import { Options } from "./types/options.type";
 import { ParserFactory } from "./parsers/parser.factory";
 import { IBuilder } from "./interfaces/builder.interface";
 import { TypeScriptBuilder } from "./builders/ts.builder";
+import { Utils } from "./utils";
 
 export class OasToJoi {
   protected joiBuilder: IBuilder;
@@ -22,22 +23,14 @@ export class OasToJoi {
   }
 
   async dumpJoiSchemas() {
-    console.log(
-      "\n==========================",
-      "\nDumping Joi Files ✨",
-      "\n==========================",
-    );
+    Utils.consoleTitleMessage("Dumping Joi Files ✨");
     const totalFiles = await this.joiBuilder.dump();
-    console.log(`Done (${totalFiles}) Files`);
+    Utils.consoleMessage({ message: `Done (${totalFiles}) Files` });
   }
 
   async dumpTypes() {
-    console.log(
-      "\n===========================",
-      "\nDumping TypeScript Files ✨",
-      "\n===========================",
-    );
+    Utils.consoleTitleMessage("Dumping TypeScript Files ✨");
     const totalFiles = await this.typesBuilder.dump();
-    console.log(`Done (${totalFiles}) Files`);
+    Utils.consoleMessage({ message: `Done (${totalFiles}) Files` });
   }
 }

@@ -1,4 +1,5 @@
 import { performance } from "perf_hooks";
+import { Utils } from "../utils";
 
 export class PerformanceHelper {
   private marks: Record<string, number> = {};
@@ -13,6 +14,8 @@ export class PerformanceHelper {
   }
 
   protected printLog(name: string, elapsedTime: number) {
-    console.log(`# -> ${name}: ${elapsedTime.toFixed(2)} ms`);
+    Utils.consoleMessage({
+      message: `# -> ${name}: ${elapsedTime.toFixed(2)} ms`,
+    });
   }
 }
