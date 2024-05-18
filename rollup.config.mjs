@@ -23,7 +23,7 @@ export default [
       resolve(),
       typescript({ module: "ESNEXT", target: "ESNEXT", exclude: ['**/__tests__', '**/*.test.ts'], sourceMap: true }),
     ],
-    external: ["yaml"],
+    external: ["yaml", "@readme/openapi-parser"],
   }, {
     input: './dist/index.d.ts',
     output: [{ file: packageJson.types, format: 'esm' }],
