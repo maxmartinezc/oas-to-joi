@@ -9,16 +9,30 @@ export class Utils {
   }
 
   static consoleMessage(options: { message: string; underline?: boolean }) {
+    const defaultRepeatCharacterAmount = 30;
     const { message, underline } = options;
-    if (underline) console.info(`\n${message}`, `\n${"-".repeat(30)}`);
+
+    const repeatCharacterAmount =
+      message.length > defaultRepeatCharacterAmount
+        ? message.length
+        : defaultRepeatCharacterAmount;
+
+    if (underline)
+      console.info(`\n${message}`, `\n${"-".repeat(repeatCharacterAmount)}`);
     else console.info(message);
   }
 
   static consoleTitleMessage(message: string) {
+    const marginCharacterAmount = 2;
+    const defaultRepeatCharacterAmount = 30;
+    const repeatCharacterAmount =
+      (message.length > defaultRepeatCharacterAmount
+        ? message.length
+        : defaultRepeatCharacterAmount) + marginCharacterAmount;
     console.info(
-      `\n${"=".repeat(30)}\n`,
+      `\n${"=".repeat(repeatCharacterAmount)}\n`,
       `${message}`,
-      `\n${"=".repeat(30)}\n`,
+      `\n${"=".repeat(repeatCharacterAmount)}\n`,
     );
   }
 }
